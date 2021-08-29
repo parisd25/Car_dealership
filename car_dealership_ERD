@@ -1,0 +1,146 @@
+SELECT *
+FROM customer;
+
+CREATE TABLE customer(
+	customer_id SERIAL PRIMARY KEY
+);
+ALTER TABLE customer
+ADD COLUMN first_name VARCHAR,
+ADD COLUMN last_name VARCHAR,
+ADD COLUMN address VARCHAR,
+ADD COLUMN email VARCHAR,
+ADD COLUMN billing_info VARCHAR;
+
+INSERT INTO customer(first_name, last_name, address, email, billing_info
+)
+VALUES('Paris', 'Doss', 'Skagen 21', 'prdoss15644@yahoo.com', 'Skagen 21');
+
+CREATE OR REPLACE FUNCTION add_customer( 
+	_first_name VARCHAR,
+	_last_name VARCHAR,
+	address VARCHAR,
+	email VARCHAR,
+	billing_info VARCHAR
+)
+RETURNS void
+AS $MAIN$
+BEGIN
+	INSERT INTO customer(first_name, last_name, address, email, billing_info)
+	VALUES(_first_name, _last_name, address, email, billing_info);
+END;
+$MAIN$
+LANGUAGE plpgsql;
+
+SELECT add_customer('Larry', 'Johnson', '1029 Prince Dr', 'ljohn@gmail.com', 'ljohn@gmail.com');
+
+
+SELECT *
+FROM staff;
+
+CREATE TABLE staff(
+	staff_id SERIAL PRIMARY KEY,
+	first_name VARCHAR(100),
+	last_name VARCHAR(100),
+	staff_type VARCHAR(100),
+	email VARCHAR(100),
+	address VARCHAR(100),
+	phone_number VARCHAR(30)
+);
+
+INSERT INTO staff(first_name, last_name, staff_type, email, address, phone_number)
+VALUES('John', 'Wick', 'Building Manager', 'Johnawesome@yahoo.com', 'John Grove 45', '708-765-5555'),
+('David', 'Hankerson', 'Sales Representative', 'dhankSON@gmail.com', '123 Clover Drive', '555-678-9999');
+
+CREATE TABLE sales_invoice(
+    invoice_id SERIAL PRIMARY KEY,
+    invoice_date DATE DEFAULT CURRENT_DATE,
+    total_cost NUMERIC(12,2),
+    customer_id INTEGER NOT NULL,
+    vehicle_id INTEGER NOT NULL,
+    staff_id INTEGER NOT NULL,
+    FOREIGN KEY(customer_id) REFERENCES customer(customer_id),
+    FOREIGN KEY(vehicle_id) REFERENCES vehicle(vehicle_id),
+    FOREIGN KEY(staff_id) REFERENCES staff(staff_id)
+);
+
+INSERT INTO sales_invoice(invoice_id, invoice_date, total_cost, customer_id, vehicle_id, staff_id)
+VALUES(17544, NOW()::timestamp, 599, 2, 1, 1);
+
+SELECT *
+FROM sales_invoice;
+
+CREATE TABLE vehicle(
+	vehicle_id SERIAL PRIMARY KEY,
+	vehicle_make VARCHAR,
+	vehicle_model VARCHAR,
+	vehicle_year NUMERIC(10),
+	vehicle_cost NUMERIC(10,2),
+	sale_service VARCHAR,
+	new_used VARCHAR
+);
+
+INSERT INTO vehicle(vehicle_make, vehicle_model, vehicle_year, vehicle_cost, sale_service, new_used)
+VALUES('FORD', 'Expedition', 1998, 1020, 'training', 'used'),
+('Audi', 'SQ8', 2021, 102999, 'Warranty', 'New');
+
+SELECT *
+FROM vehicle;
+
+CREATE TABLE service_invoice(
+	service_id SERIAL PRIMARY KEY,
+	invoice_date DATE DEFAULT CURRENT_DATE,
+	service_total 	NUMERIC(12,2),
+	customer_id INTEGER NOT NULL,
+	vehicle_id INTEGER NOT NULL
+);
+
+INSERT INTO service_invoice(invoice_date, service_total, customer_id, vehicle_id)
+VALUES(NOW()::timestamp, 5000, 2, 1);
+
+SELECT *
+FROM service_invoice;
+
+CREATE TABLE part(
+	part_id SERIAL PRIMARY KEY,
+	part_desc VARCHAR(100),
+	part_cost VARCHAR(100),
+	part_upc VARCHAR(100)
+);
+
+SELECT *
+FROM part;
+
+CREATE OR REPLACE FUNCTION add_part(
+	_part_id INTEGER, 
+	_part_desc VARCHAR,
+	_part_cost VARCHAR,
+	_part_upc VARCHAR
+)
+RETURNS void
+AS $MAIN$
+BEGIN
+	INSERT INTO part(part_id, part_desc, part_cost, part_upc)
+	VALUES(_part_id, _part_desc, _part_cost, _part_upc);
+END;
+$MAIN$
+LANGUAGE plpgsql;
+)
+
+SELECT add_part(1, 'rearview mirror', '$48.99', '793654810537');
+SELECT add_part(2, 'seat', '$599.00', '812648746743');
+
+CREATE TABLE service_type(
+	type_id SERIAL PRIMARY KEY,
+	service_date DATE DEFAULT CURRENT_DATE,
+	service_desc VARCHAR(100),
+	service_cost NUMERIC(12,0),
+	service_id INTEGER NOT NULL,
+	staff_id INTEGER NOT NULL,
+	part_id INTEGER NOT NULL
+);
+
+INSERT INTO service_type(service_date, service_desc, service_cost, service_id, staff_id, part_id)
+VALUES(NOW()::TIMESTAMP, 'seat', 5000, 2, 1, 2);
+
+SELECT *
+FROM service_type;
